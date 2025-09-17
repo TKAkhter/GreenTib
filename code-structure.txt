@@ -1,0 +1,88 @@
+/
+├── .husky/
+│   └── pre-commit
+├── .vscode/
+│   └── launch.json
+├── public/
+│   └── vite.svg
+├── scripts/
+│   └── openapi.js
+├── src/
+│   ├── assets/
+│   │   ├── logo-dark.png
+│   │   └── logo.png
+│   ├── common/
+│   │   ├── axios.ts
+│   │   ├── cookie.ts
+│   │   └── pino.ts
+│   ├── components/
+│   │   ├── FileUpload/
+│   │   │   ├── FileList.tsx
+│   │   │   ├── FileUpload.tsx
+│   │   │   └── FileView.tsx
+│   │   ├── Header/
+│   │   │   └── Header.tsx
+│   │   ├── ui/
+│   │   │   ├── alert-dialog.tsx
+│   │   │   ├── alert.tsx
+│   │   │   ├── avatar.tsx
+│   │   │   ├── badge.tsx
+│   │   │   ├── button.tsx
+│   │   │   ├── card.tsx
+│   │   │   ├── dropdown-menu.tsx
+│   │   │   ├── input.tsx
+│   │   │   ├── label.tsx
+│   │   │   ├── sonner.tsx
+│   │   │   └── textarea.tsx
+│   │   ├── ImageViewer.tsx
+│   │   ├── Loader.tsx
+│   │   └── Logo.tsx
+│   ├── generated/
+│   │   ├── client.gen.ts
+│   │   ├── index.ts
+│   │   ├── sdk.gen.ts
+│   │   └── types.gen.ts
+│   ├── hooks/
+│   │   └── useSettings.tsx
+│   ├── layout/
+│   │   └── DefaultLayout.tsx
+│   ├── lib/
+│   │   └── utils.ts
+│   ├── middlewares/
+│   │   └── AuthMiddleware.tsx
+│   ├── pages/
+│   │   ├── Dashboard.tsx
+│   │   ├── Login.tsx
+│   │   ├── NotFound.tsx
+│   │   ├── Register.tsx
+│   │   └── Settings.tsx
+│   ├── redux/
+│   │   ├── slices/
+│   │   │   ├── authSlice.ts
+│   │   │   ├── fileSlice.ts
+│   │   │   └── userSlice.ts
+│   │   └── store.ts
+│   ├── routes/
+│   │   └── route.tsx
+│   ├── schemas/
+│   │   ├── auth.schema.ts
+│   │   └── settings.schema.ts
+│   ├── types/
+│   │   └── types.ts
+│   ├── App.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   └── vite-env.d.ts
+├── .env
+├── .env.example
+├── .gitignore
+├── .prettierignore
+├── .prettierrc
+├── code.txt
+├── components.json
+├── eslint.config.mjs
+├── index.html
+├── package.json
+├── README.md
+├── tsconfig.json
+└── vite.config.ts
