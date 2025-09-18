@@ -27,7 +27,7 @@ export const Header: React.FC = () => {
   const initials = (user.name ? user.name : "T A")
     .trim()
     .split(/\s+/)
-    .map((word) => word[0].toUpperCase())
+    .map((word: string) => word[0].toUpperCase())
     .join("");
 
   const handleLogout = () => {

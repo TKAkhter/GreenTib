@@ -4,10 +4,10 @@ import { useDispatch, useSelector } from "react-redux";
 import { resetFileUploaded } from "../../redux/slices/fileSlice";
 import { RootState } from "../../redux/store";
 import { ImageViewer } from "../ImageViewer";
-import { File } from "@/generated";
+import { Files, getFilesUserByUserId } from "@/generated";
 
 export const FileList: React.FC = () => {
-  const [files, setFiles] = useState<File[]>([]);
+  const [files, setFiles] = useState<Files[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string>("");
   const dispatch = useDispatch();
@@ -17,9 +17,14 @@ export const FileList: React.FC = () => {
   useEffect(() => {
     const fetchFiles = async () => {
       try {
-        const response = await axiosClient.get(`/file/user/${userId}`);
-        if (response.data.data && response.data.data.length > 0) {
-          setFiles(response.data.data);
+        // const response = await axiosClient.get(`/files/user/${userId}`);
+        const { data: filesResponse } = await getFilesUserByUserId({
+          path: {
+            userId
+          }
+        });
+        if (filesResponse && filesResponse?.success && filesResponse?.data) {
+          setFiles(filesResponse.data);
         }
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (_) {

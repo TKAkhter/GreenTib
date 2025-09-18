@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Upload } from "lucide-react";
 import { useDispatch, useSelector } from "react-redux";
 import { setFileUploaded } from "@/redux/slices/fileSlice";
-import { postFileUpload } from "@/generated";
+import { postFilesUpload } from "@/generated";
 import { RootState } from "@/redux/store";
 import logger from "@/common/pino";
 import clsx from "clsx";
@@ -43,7 +43,7 @@ export const FileUpload: React.FC = () => {
     try {
       for (const file of uploadedFiles) {
         // eslint-disable-next-line  no-await-in-loop
-        const { error } = await postFileUpload({
+        const { error } = await postFilesUpload({
           body: {
             userId,
             name: file.name,

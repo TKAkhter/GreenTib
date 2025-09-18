@@ -3,10 +3,10 @@ import { useNavigate } from "react-router-dom"; // Change to Next.js `useRouter`
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Eye } from "lucide-react";
-import { File } from "@/generated";
+import { Files } from "@/generated";
 
 interface ImageViewerProps {
-  images: File[];
+  images: Files[];
 }
 
 export const ImageViewer: React.FC<ImageViewerProps> = ({ images }) => {

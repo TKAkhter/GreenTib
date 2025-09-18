@@ -1,5 +1,5 @@
 import Cookies from "js-cookie";
-import { User } from "@/generated";
+import { Users } from "@/generated";
 
 export const setTokenCookie = (token: string) => {
   Cookies.set("token", token, { expires: 1 });
@@ -13,7 +13,7 @@ export const removeTokenCookie = () => {
   Cookies.remove("token");
 };
 
-export const setUserCookie = (user: User) => {
+export const setUserCookie = (user: Users) => {
   Cookies.set("user", JSON.stringify(user), { expires: 1 });
 };
 

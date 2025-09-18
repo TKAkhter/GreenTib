@@ -13,7 +13,7 @@ import { AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import { useDispatch, useSelector } from "react-redux";
 import { remove, save } from "@/redux/slices/userSlice";
-import { deleteUserById, getUserById, putUserById } from "@/generated";
+import { deleteUsersById, getUsersById, putUsersById } from "@/generated";
 import { RootState } from "@/redux/store";
 import {
   AlertDialog,
@@ -57,7 +57,7 @@ const Settings: React.FC = () => {
     setLoading(true);
     const loadingToast = toast.loading("Updating account...");
     try {
-      const { data, error } = await putUserById({
+      const { data, error } = await putUsersById({
         path: { id: userId },
         body: {
           name: submittedData.name,
@@ -90,7 +90,7 @@ const Settings: React.FC = () => {
   const handleDeleteAccount = async () => {
     const loadingToast = toast.loading("Deleting account...");
     try {
-      const { error } = await deleteUserById({
+      const { error } = await deleteUsersById({
         path: { id: userId },
         headers: {
           Authorization: `Bearer ${authToken}`,
@@ -115,7 +115,7 @@ const Settings: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await getUserById({
+      const { data, error } = await getUsersById({
         path: { id: userId },
         headers: {
           Authorization: `Bearer ${authToken}`,

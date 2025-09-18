@@ -33,7 +33,7 @@ const FileView: React.FC = () => {
   useEffect(() => {
     const fetchImageDetails = async () => {
       try {
-        const response = await axiosClient.get(`/file/${id}`);
+        const response = await axiosClient.get(`/files/${id}`);
         const { data } = response.data;
         setImageDetails(data);
         setTags(data.tags);
@@ -55,7 +55,7 @@ const FileView: React.FC = () => {
     setLoading(true);
     const loadingToast = toast.loading("Updating account...");
     try {
-      const response = await axiosClient.put(`/file/${id}`, {
+      const response = await axiosClient.put(`/files/${id}`, {
         name,
         tags,
       });
@@ -72,7 +72,7 @@ const FileView: React.FC = () => {
 
   const handleDelete = async () => {
     try {
-      await axiosClient.delete(`/file/${id}`);
+      await axiosClient.delete(`/files/${id}`);
       toast.success("File deleted successfully!");
       navigate("/dashboard");
     } catch (error) {
