@@ -1,204 +1,134 @@
+"use client";
+
 import React, { useState } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { motion } from "framer-motion";
+import { Input } from "@/components/ui/input";
+import { motion, AnimatePresence } from "framer-motion";
+import { questionSets } from "@/constant/questionSets";
 
-const categories = {
-  Hair: ["Hair Loss", "Hair Strength", "Early Greying", "Dandruff"],
-  Skin: ["Acne", "Glow", "Anti-aging", "Dryness", "Dark Spots"],
-  Stamina: ["Fatigue", "Weakness", "Male Vitality", "Female Vitality"],
-  Digestion: ["Gas", "Acidity", "Constipation", "Bloating"],
-  Sleep: ["Insomnia", "Anxiety", "Relaxation"],
-  Immunity: ["Cold/Flu", "General Immunity", "Recovery"],
-  Joints: ["Pain", "Arthritis", "Flexibility"]
-};
-
-const personalQuestions = [
-  { key: "age", label: "What is your age?", type: "input" },
-  { key: "gender", label: "What is your gender?", type: "options", options: ["Male", "Female", "Other"] },
-  { key: "medications", label: "Are you taking any medications?", type: "options", options: ["Yes", "No"] },
-  { key: "pregnant", label: "Are you pregnant (if applicable)?", type: "options", options: ["Yes", "No", "N/A"] },
-  { key: "allergies", label: "Do you have any known allergies?", type: "options", options: ["Yes", "No"] },
-  { key: "duration", label: "How long have you had this issue?", type: "options", options: ["<1 month", "1-6 months", ">6 months"] }
-];
-
-const AiBot: React.FC = () => {
+export default function HerbalForm() {
+  const [category, setCategory] = useState<string | null>(null);
   const [step, setStep] = useState(0);
-  const [category, setCategory] = useState<keyof typeof categories | "">("");
-  const [subGoal, setSubGoal] = useState("");
-  const [formData, setFormData] = useState<Record<string, string>>({});
-  const [customValue, setCustomValue] = useState("");
-  const [customActive, setCustomActive] = useState(false);
-  const [report, setReport] = useState<{ category: string; sub_goal: string; [key: string]: any } | null>(null);
+  const [answers, setAnswers] = useState<any>({});
+  const [customInput, setCustomInput] = useState<string>("");
 
-  const handleNext = () => setStep((prev) => prev + 1);
-  const handleBack = () => setStep((prev) => (prev > 0 ? prev - 1 : prev));
+  const categories = Object.keys(questionSets);
 
-  const handleSubmit = () => {
-    const structuredReport = {
-      category,
-      sub_goal: subGoal,
-      ...formData
-    };
-    setReport(structuredReport);
+  const handleSelect = (value: string, custom?: boolean) => {
+    const currentSet = questionSets[category as keyof typeof questionSets];
+    const currentQ = currentSet[step - 1].question;
+
+    setAnswers((prev: any) => ({
+      ...prev,
+      [currentQ]: custom ? customInput : value,
+    }));
+
+    setCustomInput(""); // reset custom field
+    setStep((s) => s + 1);
   };
 
-  const handleOptionSelect = (key: string, value: string) => {
-    setFormData({ ...formData, [key]: value });
-    setCustomActive(false);
-    setCustomValue("");
-    handleNext();
+  const restart = () => {
+    setCategory(null);
+    setStep(0);
+    setAnswers({});
   };
 
-  const handleCustomSubmit = (key: string) => {
-    if (customValue.trim()) {
-      setFormData({ ...formData, [key]: customValue.trim() });
-      setCustomActive(false);
-      setCustomValue("");
-      handleNext();
-    }
-  };
+  type Question = { question: string; options: string[] };
+  const questions: Question[] =
+    category ? (questionSets[category as keyof typeof questionSets] as Question[]) : [];
+  const totalSteps = category ? questions.length + 1 : 0;
 
   return (
     <div className="flex justify-center items-center min-h-screen bg-gray-50 p-6">
       <Card className="w-full max-w-lg shadow-lg rounded-2xl">
-        <CardContent className="p-6 space-y-6">
-          {!report && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              {/* Step 0 → Category */}
-              {step === 0 && (
-                <>
-                  <h2 className="text-xl font-semibold mb-4">What do you want to improve?</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    {Object.keys(categories).map((cat) => (
-                      <Button
-                        key={cat}
-                        onClick={() => {
-                          setCategory(cat as keyof typeof categories);
-                          handleNext();
-                        }}
-                        variant={category === cat ? "default" : "outline"}
-                      >
-                        {cat}
-                      </Button>
-                    ))}
+        <CardHeader>
+          <CardTitle className="text-xl font-bold text-center">
+            Herbal AI Prescriber
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <AnimatePresence mode="wait">
+            {!category ? (
+              <motion.div
+                key="category"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-4"
+              >
+                <p className="font-medium">What do you want to improve?</p>
+                <div className="flex flex-wrap gap-2">
+                  {categories.map((c) => (
+                    <Button
+                      key={c}
+                      variant="outline"
+                      onClick={() => {
+                        setCategory(c);
+                        setStep(1);
+                      }}
+                    >
+                      {c.charAt(0).toUpperCase() + c.slice(1)}
+                    </Button>
+                  ))}
+                </div>
+              </motion.div>
+            ) : step <= questions!.length ? (
+              <motion.div
+                key={step}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-4"
+              >
+                <p className="font-medium">
+                  {questions![step - 1].question} ({step}/{totalSteps})
+                </p>
+                <div className="flex flex-wrap gap-2">
+                  {questions![step - 1].options.map((opt: any) => (
+                    <Button
+                      key={opt}
+                      variant="outline"
+                      onClick={() => handleSelect(opt)}
+                    >
+                      {opt}
+                    </Button>
+                  ))}
+                  {/* Custom option */}
+                  <div className="flex gap-2 items-center">
+                    <Input
+                      placeholder="Custom answer"
+                      value={customInput}
+                      onChange={(e) => setCustomInput(e.target.value)}
+                      className="w-40"
+                    />
+                    <Button
+                      disabled={!customInput}
+                      onClick={() => handleSelect(customInput, true)}
+                    >
+                      Add
+                    </Button>
                   </div>
-                </>
-              )}
-
-              {/* Step 1 → SubGoal */}
-              {step === 1 && (
-                <>
-                  <h2 className="text-xl font-semibold mb-4">What do you want to improve in {category}?</h2>
-                  <div className="grid grid-cols-2 gap-2">
-                    {category && categories[category].map((sg) => (
-                      <Button
-                        key={sg}
-                        onClick={() => {
-                          setSubGoal(sg);
-                          handleNext();
-                        }}
-                        variant={subGoal === sg ? "default" : "outline"}
-                      >
-                        {sg}
-                      </Button>
-                    ))}
-                  </div>
-                  <div className="mt-4 flex gap-2">
-                    <Button variant="secondary" onClick={handleBack}>Back</Button>
-                  </div>
-                </>
-              )}
-
-              {/* Step 2+ → Personal Questions */}
-              {step >= 2 && step < personalQuestions.length + 2 && (
-                <>
-                  <h2 className="text-xl font-semibold mb-4">
-                    {personalQuestions[step - 2].label}
-                  </h2>
-                  {personalQuestions[step - 2].type === "input" ? (
-                    <>
-                      <input
-                        type="text"
-                        className="w-full border rounded-lg p-2"
-                        value={formData[personalQuestions[step - 2].key] || ""}
-                        onChange={(e) =>
-                          setFormData({
-                            ...formData,
-                            [personalQuestions[step - 2].key]: e.target.value
-                          })
-                        }
-                      />
-                      <div className="mt-4 flex gap-2">
-                        <Button variant="secondary" onClick={handleBack}>Back</Button>
-                        <Button onClick={handleNext}>Next</Button>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="grid grid-cols-2 gap-2">
-                        {personalQuestions[step - 2]?.options?.map((opt) => (
-                          <Button
-                            key={opt}
-                            onClick={() => handleOptionSelect(personalQuestions[step - 2].key, opt)}
-                            variant={formData[personalQuestions[step - 2].key] === opt ? "default" : "outline"}
-                          >
-                            {opt}
-                          </Button>
-                        ))}
-                        <Button
-                          variant={customActive ? "default" : "outline"}
-                          onClick={() => setCustomActive(true)}
-                        >
-                          Custom
-                        </Button>
-                      </div>
-                      {customActive && (
-                        <div className="mt-3 flex gap-2">
-                          <input
-                            type="text"
-                            className="flex-1 border rounded-lg p-2"
-                            placeholder="Enter custom value"
-                            value={customValue}
-                            onChange={(e) => setCustomValue(e.target.value)}
-                          />
-                          <Button onClick={() => handleCustomSubmit(personalQuestions[step - 2].key)}>OK</Button>
-                        </div>
-                      )}
-                      <div className="mt-4 flex gap-2">
-                        <Button variant="secondary" onClick={handleBack}>Back</Button>
-                      </div>
-                    </>
-                  )}
-                </>
-              )}
-
-              {/* Final step → Submit */}
-              {step === personalQuestions.length + 2 && (
-                <>
-                  <h2 className="text-xl font-semibold mb-4">All done!</h2>
-                  <p className="text-gray-600 mb-4">Click below to generate your report.</p>
-                  <div className="flex gap-2">
-                    <Button variant="secondary" onClick={handleBack}>Back</Button>
-                    <Button onClick={handleSubmit}>Generate Report</Button>
-                  </div>
-                </>
-              )}
-            </motion.div>
-          )}
-
-          {report && (
-            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}>
-              <h2 className="text-xl font-semibold mb-4">Generated Report</h2>
-              <pre className="bg-gray-100 p-4 rounded-xl text-sm overflow-auto">
-                {JSON.stringify(report, null, 2)}
-              </pre>
-            </motion.div>
-          )}
+                </div>
+              </motion.div>
+            ) : (
+              <motion.div
+                key="result"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -20 }}
+                className="space-y-4"
+              >
+                <p className="font-medium">Your Report:</p>
+                <pre className="bg-gray-100 p-3 rounded-lg text-sm overflow-x-auto">
+                  {JSON.stringify({ category, answers }, null, 2)}
+                </pre>
+                <Button onClick={restart}>Start Over</Button>
+              </motion.div>
+            )}
+          </AnimatePresence>
         </CardContent>
       </Card>
     </div>
   );
 }
-
-export default AiBot;
