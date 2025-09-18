@@ -7,4 +7,4 @@ createClient({
   plugins: ['@hey-api/client-fetch'],
 });
 
-// http://localhost:5000/docs/swagger.json
+// npm run api:gen http://localhost:5000/docs/swagger.json

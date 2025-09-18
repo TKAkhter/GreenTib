@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { axiosClient } from "@/common/axios";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -18,6 +17,8 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "../ui/alert-dialog";
+import { deleteFilesById, getFilesById, putFilesById } from "@/generated";
+import logger from "@/common/pino";
 
 const FileView: React.FC = () => {
   const { id } = useParams();
@@ -32,15 +33,28 @@ const FileView: React.FC = () => {
 
   useEffect(() => {
     const fetchImageDetails = async () => {
+
+      setLoading(true);
+      const loadingToast = toast.loading("Fetching file details...");
+
       try {
-        const response = await axiosClient.get(`/files/${id}`);
-        const { data } = response.data;
+        const { data: filesResponse, error } = await getFilesById({
+          path: {
+            id: id!
+          },
+        });
+        if (!filesResponse?.success) {
+          throw error;
+        }
+
+        const { data } = filesResponse!;
         setImageDetails(data);
-        setTags(data.tags);
-        setName(data.name);
-      } catch (error) {
-        console.error("Error fetching image details:", error);
-        toast.error("Failed to load image details.");
+        setTags(data?.tags!);
+        setName(data?.name!);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        logger.error(error.message);
+        toast.error(`Fetch file details failed: ${error.message}`, { id: loadingToast });
       } finally {
         setLoading(false);
       }
@@ -52,18 +66,29 @@ const FileView: React.FC = () => {
   }, [id]);
 
   const handleUpdate = async () => {
+
     setLoading(true);
-    const loadingToast = toast.loading("Updating account...");
+    const loadingToast = toast.loading("Updating file...");
+
     try {
-      const response = await axiosClient.put(`/files/${id}`, {
-        name,
-        tags,
+      const { data: filesResponse, error } = await putFilesById({
+        path: {
+          id: id!
+        },
+        body: {
+          name,
+          tags,
+        }
       });
-      setImageDetails(response.data.data);
+      if (!filesResponse?.success) {
+        throw error;
+      }
+
+      setImageDetails(filesResponse?.data);
       toast.success("Account updated successfully", { id: loadingToast });
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      toast.error(`Account update failed: ${error.message}`, { id: loadingToast });
+      toast.error(`Update failed: ${error.message}`, { id: loadingToast });
     } finally {
       setEditing(false);
       setLoading(false);
@@ -71,13 +96,28 @@ const FileView: React.FC = () => {
   };
 
   const handleDelete = async () => {
+
+    setLoading(true);
+    const loadingToast = toast.loading("Deleting file...");
+
     try {
-      await axiosClient.delete(`/files/${id}`);
-      toast.success("File deleted successfully!");
+      const { data: filesResponse, error } = await deleteFilesById({
+        path: {
+          id: id!
+        },
+      });
+      if (!filesResponse?.success) {
+        throw error;
+      }
+
+      toast.success("File deleted successfully!", { id: loadingToast });
       navigate("/dashboard");
-    } catch (error) {
-      console.error("Delete failed:", error);
-      toast.error("Delete failed!");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      logger.error(error.message);
+      toast.error("Delete failed!", { id: loadingToast });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -127,13 +167,13 @@ const FileView: React.FC = () => {
               <div className="flex flex-wrap gap-2 mt-2">
                 {imageDetails.tags
                   ? imageDetails.tags.split(",").map((tag: string, index: number) => (
-                      <span
-                        key={index}
-                        className="text-xs bg-primary text-secondary px-2 py-1 rounded-full"
-                      >
-                        #{tag}
-                      </span>
-                    ))
+                    <span
+                      key={index}
+                      className="text-xs bg-primary text-secondary px-2 py-1 rounded-full"
+                    >
+                      #{tag}
+                    </span>
+                  ))
                   : null}
               </div>
               <div className="flex gap-2 mt-4">

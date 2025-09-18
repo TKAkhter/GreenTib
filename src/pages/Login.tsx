@@ -33,28 +33,25 @@ const Login: React.FC = () => {
   });
 
   const onSubmit = async (submittedData: AuthSchema) => {
+
     setLoading(true);
     const loadingToast = toast.loading("Logging in...");
-    try {
-      const { data, error } = await postAuthLogin({ body: submittedData });
 
-      if (error) {
-        const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
-        throw new Error(errorMessage);
+    try {
+      const { data: loginResponse, error } = await postAuthLogin({ body: submittedData });
+      if (!loginResponse?.success) {
+        throw error;
       }
 
-      dispatch(login(data!.data!.token));
-      dispatch(save(data!.data!.user));
-
       toast.success("Login successful!", { id: loadingToast });
+      dispatch(login(loginResponse?.data!.token));
+      dispatch(save(loginResponse?.data!.user));
       await addDelay(500);
       navigate("/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       logger.error(error.message);
-      toast.error("Login failed. Email or Password is not correct.", {
-        id: loadingToast,
-      });
+      toast.error(`Login failed: ${error.message}`, { id: loadingToast });
     } finally {
       setLoading(false);
     }

@@ -11,13 +11,13 @@ import { RootState } from "@/redux/store";
 export const DefaultLayout = ({ children }: LayoutProps) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const authToken = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector((state: RootState) => state.auth.token);
 
   useEffect(() => {
-    if (!isTokenValid(authToken)) {
+    if (!isTokenValid(token)) {
       navigate("/login");
     }
-  }, [authToken]);
+  }, [token]);
 
   const showBackButton = location.pathname !== "/dashboard";
   return (

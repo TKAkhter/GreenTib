@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { axiosClient } from "../../common/axios";
 import { useDispatch, useSelector } from "react-redux";
 import { resetFileUploaded } from "../../redux/slices/fileSlice";
 import { RootState } from "../../redux/store";
 import { ImageViewer } from "../ImageViewer";
 import { Files, getFilesUserByUserId } from "@/generated";
+import { toast } from "sonner";
+import logger from "@/common/pino";
 
 export const FileList: React.FC = () => {
   const [files, setFiles] = useState<Files[]>([]);
@@ -16,30 +17,40 @@ export const FileList: React.FC = () => {
 
   useEffect(() => {
     const fetchFiles = async () => {
+
+      setLoading(true);
+      const loadingToast = toast.loading("Uploading files...");
+
       try {
-        // const response = await axiosClient.get(`/files/user/${userId}`);
-        const { data: filesResponse } = await getFilesUserByUserId({
+        const { data: filesResponse, error } = await getFilesUserByUserId({
           path: {
             userId
           }
         });
-        if (filesResponse && filesResponse?.success && filesResponse?.data) {
-          setFiles(filesResponse.data);
+        if (!filesResponse?.success) {
+          throw error;
         }
-        // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (_) {
-        setError("Files not found!");
+
+        setFiles(filesResponse?.data!);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        logger.error(error.message);
+        toast.error(`Fetch files failed: ${error.message}`, { id: loadingToast });
+        setError(error.message || "Files not found!");
       } finally {
         setLoading(false);
       }
     };
 
-    fetchFiles();
+    if (userId) {
+      fetchFiles();
+    }
+
     if (isFileUploaded) {
       fetchFiles();
       dispatch(resetFileUploaded());
     }
-  }, [isFileUploaded, dispatch]);
+  }, [userId, isFileUploaded, dispatch]);
 
   if (loading) {
     return <h2 className="text-xl">Loading files...</h2>;

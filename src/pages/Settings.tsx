@@ -28,10 +28,10 @@ import {
 } from "@/components/ui/alert-dialog";
 import { logout } from "@/redux/slices/authSlice";
 import { useNavigate } from "react-router-dom";
+import logger from "@/common/pino";
 
 const Settings: React.FC = () => {
   const userId = useSelector((state: RootState) => state.user.id);
-  const authToken = useSelector((state: RootState) => state.auth.token);
   const navigate = useNavigate();
   const dispatch = useDispatch();
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -54,33 +54,28 @@ const Settings: React.FC = () => {
   });
 
   const onSubmit = async (submittedData: SettingsSchema) => {
+
     setLoading(true);
     const loadingToast = toast.loading("Updating account...");
+
     try {
-      const { data, error } = await putUsersById({
+      const { data: userResponse, error } = await putUsersById({
         path: { id: userId },
         body: {
           name: submittedData.name,
           phoneNumber: submittedData.phone,
           bio: submittedData.bio,
-        },
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
+        }
       });
-
-      if (error) {
-        const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
-        throw new Error(errorMessage);
-      }
-
-      if (data?.data) {
-        dispatch(save(data.data));
+      if (!userResponse?.success) {
+        throw error;
       }
 
       toast.success("Account updated successfully", { id: loadingToast });
+      dispatch(save(userResponse?.data!));
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      logger.error(error.message);
       toast.error(`Account update failed: ${error.message}`, { id: loadingToast });
     } finally {
       setLoading(false);
@@ -88,60 +83,66 @@ const Settings: React.FC = () => {
   };
 
   const handleDeleteAccount = async () => {
-    const loadingToast = toast.loading("Deleting account...");
-    try {
-      const { error } = await deleteUsersById({
-        path: { id: userId },
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
 
-      if (error) {
-        const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
-        throw new Error(errorMessage);
+    setLoading(true);
+    const loadingToast = toast.loading("Deleting account...");
+
+    try {
+      const { data: userResponse, error } = await deleteUsersById({
+        path: { id: userId },
+      });
+      if (!userResponse?.success) {
+        throw error;
       }
 
       toast.success("Account deleted successfully", { id: loadingToast });
-
       dispatch(logout());
       dispatch(remove());
       navigate("/login");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      logger.error(error.message);
       toast.error(`Account deleted failed: ${error.message}`, { id: loadingToast });
+    } finally {
+      setLoading(false);
     }
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      const { data, error } = await getUsersById({
-        path: { id: userId },
-        headers: {
-          Authorization: `Bearer ${authToken}`,
-        },
-      });
 
-      if (error) {
-        const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
-        throw new Error(errorMessage);
-      }
+      setLoading(true);
+      const loadingToast = toast.loading("Fetching user data...");
 
-      if (data?.success) {
+      try {
+        const { data: userResponse, error } = await getUsersById({
+          path: { id: userId },
+        });
+        if (!userResponse?.success) {
+          throw error;
+        }
+
         const updatedAccount = {
-          name: data.data!.name,
-          email: data.data!.email,
-          phone: data.data!.phoneNumber,
-          bio: data.data!.bio,
+          name: userResponse.data!.name,
+          email: userResponse.data!.email,
+          phone: userResponse.data!.phoneNumber,
+          bio: userResponse.data!.bio,
         };
-
         setAccount(updatedAccount);
         reset(updatedAccount);
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } catch (error: any) {
+        logger.error(error.message);
+        toast.error(`Fetch user data failed: ${error.message}`, { id: loadingToast });
+      } finally {
+        setLoading(false);
       }
     };
 
-    fetchData().catch((error) => toast.error(error.message));
-  }, []);
+    if (userId) {
+      fetchData();
+    }
+  }, [userId]);
 
   return (
     <div className="flex flex-col lg:flex-row justify-center items-start gap-8 p-6">

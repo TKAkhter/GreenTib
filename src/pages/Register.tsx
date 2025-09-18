@@ -16,6 +16,7 @@ import { save } from "@/redux/slices/userSlice";
 import { registerSchema, RegisterSchema } from "@/schemas/auth.schema";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import logger from "@/common/pino";
 
 const Register: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
@@ -33,25 +34,24 @@ const Register: React.FC = () => {
   });
 
   const onSubmit = async (submittedData: RegisterSchema) => {
+
     setLoading(true);
     const loadingToast = toast.loading("Creating account...");
 
     try {
-      const { data, error } = await postAuthRegister({ body: submittedData });
-
-      if (error) {
-        const errorMessage = (error as { message?: string }).message || "An unknown error occurred";
-        throw new Error(errorMessage);
+      const { data: registerResponse, error } = await postAuthRegister({ body: submittedData });
+      if (!registerResponse?.success) {
+        throw error;
       }
 
-      dispatch(login(data!.data!.token));
-      dispatch(save(data!.data!.user));
-
       toast.success("Account created successfully", { id: loadingToast });
+      dispatch(login(registerResponse?.data!.token));
+      dispatch(save(registerResponse?.data!.user));
       await addDelay(500);
       navigate("/dashboard");
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
+      logger.error(error.message);
       toast.error(`Account creation failed: ${error.message}`, { id: loadingToast });
     } finally {
       setLoading(false);

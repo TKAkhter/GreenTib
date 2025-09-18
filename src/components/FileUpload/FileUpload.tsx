@@ -14,7 +14,6 @@ import clsx from "clsx";
 
 export const FileUpload: React.FC = () => {
   const userId = useSelector((state: RootState) => state.user.id);
-  const authToken = useSelector((state: RootState) => state.auth.token);
   const [tags, setTags] = useState<string[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [loading, setLoading] = useState(false);
@@ -34,32 +33,28 @@ export const FileUpload: React.FC = () => {
 
   const handleUpload = async () => {
     if (uploadedFiles.length === 0) {
-      return toast.error("No files selected!");
+      return toast.error("No file(s) selected!");
     }
 
     setLoading(true);
-    const loadingToast = toast.loading("Uploading files...");
+    const loadingToast = toast.loading("Uploading file(s)...");
 
     try {
       for (const file of uploadedFiles) {
-        // eslint-disable-next-line  no-await-in-loop
-        const { error } = await postFilesUpload({
+        const { data: filesResponse, error } = await postFilesUpload({
           body: {
             userId,
             name: file.name,
             file,
             tags: tags.join(","),
           },
-          headers: {
-            Authorization: `Bearer ${authToken}`,
-          },
         });
-        if (error) {
-          throw new Error((error as { message?: string }).message || "An unknown error occurred");
+        if (!filesResponse?.success) {
+          throw error;
         }
       }
 
-      toast.success("Files uploaded successfully!", { id: loadingToast });
+      toast.success("File(s) uploaded successfully!", { id: loadingToast });
       dispatch(setFileUploaded());
       setUploadedFiles([]);
       // eslint-disable-next-line @typescript-eslint/no-explicit-any

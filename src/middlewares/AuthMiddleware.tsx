@@ -4,7 +4,7 @@ import { RootState } from "../redux/store";
 import { Navigate, Outlet } from "react-router-dom";
 
 export const AuthMiddleware: React.FC = () => {
-  const authToken = useSelector((state: RootState) => state.auth.token);
+  const token = useSelector((state: RootState) => state.auth.token);
 
-  return authToken ? <Outlet /> : <Navigate to="/login" replace />;
+  return token ? <Outlet /> : <Navigate to="/login" replace />;
 };
