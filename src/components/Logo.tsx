@@ -1,6 +1,6 @@
 import React from "react";
-import LogoLight from "../assets/logo.png";
-import LogoDark from "../assets/logo-dark.png";
+import LogoLight from "@/assets/logo.png";
+import LogoDark from "@/assets/logo-dark.png";
 
 export const Logo = () => {
   return (

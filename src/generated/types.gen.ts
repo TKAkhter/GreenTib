@@ -34,6 +34,26 @@ export type Files = {
     updatedAt: string;
 };
 
+export type Conversations = {
+    id: string;
+    userId: string;
+    category: string;
+    /**
+     * JSON value
+     */
+    answers: {
+        [key: string]: unknown;
+    };
+    /**
+     * JSON value
+     */
+    notes: {
+        [key: string]: unknown;
+    };
+    createdAt: string;
+    updatedAt: string;
+};
+
 export type GetHealthData = {
     body?: never;
     path?: never;
@@ -856,6 +876,373 @@ export type PostFilesUploadResponses = {
 };
 
 export type PostFilesUploadResponse = PostFilesUploadResponses[keyof PostFilesUploadResponses];
+
+export type GetConversationsData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/conversations';
+};
+
+export type GetConversationsResponses = {
+    /**
+     * Success
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: Array<{
+            id: string;
+            userId: string;
+            category: string;
+            /**
+             * JSON value
+             */
+            answers: {
+                [key: string]: unknown;
+            };
+            /**
+             * JSON value
+             */
+            notes: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+        }>;
+    };
+};
+
+export type GetConversationsResponse = GetConversationsResponses[keyof GetConversationsResponses];
+
+export type PostConversationsData = {
+    body?: {
+        userId?: string;
+        category?: string;
+        /**
+         * JSON value
+         */
+        answers?: {
+            [key: string]: unknown;
+        };
+        /**
+         * JSON value
+         */
+        notes?: {
+            [key: string]: unknown;
+        };
+    };
+    path?: never;
+    query?: never;
+    url: '/conversations';
+};
+
+export type PostConversationsResponses = {
+    /**
+     * Conversations Created Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: {
+            userId?: string;
+            category?: string;
+            /**
+             * JSON value
+             */
+            answers?: {
+                [key: string]: unknown;
+            };
+            /**
+             * JSON value
+             */
+            notes?: {
+                [key: string]: unknown;
+            };
+        };
+    };
+};
+
+export type PostConversationsResponse = PostConversationsResponses[keyof PostConversationsResponses];
+
+export type PostConversationsImportData = {
+    body?: {
+        /**
+         * The file to upload
+         */
+        file?: Blob | File;
+    };
+    path?: never;
+    query?: never;
+    url: '/conversations/import';
+};
+
+export type PostConversationsImportResponses = {
+    /**
+     * Conversationss Imported Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: unknown;
+    };
+};
+
+export type PostConversationsImportResponse = PostConversationsImportResponses[keyof PostConversationsImportResponses];
+
+export type GetConversationsExportData = {
+    body?: never;
+    path?: never;
+    query?: never;
+    url: '/conversations/export';
+};
+
+export type GetConversationsExportResponses = {
+    /**
+     * Conversationss Exported Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: unknown;
+    };
+};
+
+export type GetConversationsExportResponse = GetConversationsExportResponses[keyof GetConversationsExportResponses];
+
+export type DeleteConversationsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/conversations/{id}';
+};
+
+export type DeleteConversationsByIdResponses = {
+    /**
+     * Conversations Deleted Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: unknown;
+    };
+};
+
+export type DeleteConversationsByIdResponse = DeleteConversationsByIdResponses[keyof DeleteConversationsByIdResponses];
+
+export type GetConversationsByIdData = {
+    body?: never;
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/conversations/{id}';
+};
+
+export type GetConversationsByIdResponses = {
+    /**
+     * Success
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: {
+            id: string;
+            userId: string;
+            category: string;
+            /**
+             * JSON value
+             */
+            answers: {
+                [key: string]: unknown;
+            };
+            /**
+             * JSON value
+             */
+            notes: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+        };
+    };
+};
+
+export type GetConversationsByIdResponse = GetConversationsByIdResponses[keyof GetConversationsByIdResponses];
+
+export type PutConversationsByIdData = {
+    body?: {
+        userId?: string;
+        category?: string;
+        /**
+         * JSON value
+         */
+        answers?: {
+            [key: string]: unknown;
+        };
+        /**
+         * JSON value
+         */
+        notes?: {
+            [key: string]: unknown;
+        };
+        updatedAt?: string;
+    };
+    path: {
+        id: string;
+    };
+    query?: never;
+    url: '/conversations/{id}';
+};
+
+export type PutConversationsByIdResponses = {
+    /**
+     * Conversations Updated Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: {
+            id: string;
+            userId: string;
+            category: string;
+            /**
+             * JSON value
+             */
+            answers: {
+                [key: string]: unknown;
+            };
+            /**
+             * JSON value
+             */
+            notes: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+        };
+    };
+};
+
+export type PutConversationsByIdResponse = PutConversationsByIdResponses[keyof PutConversationsByIdResponses];
+
+export type GetConversationsEmailByEmailData = {
+    body?: never;
+    path: {
+        email: string;
+    };
+    query?: never;
+    url: '/conversations/email/{email}';
+};
+
+export type GetConversationsEmailByEmailResponses = {
+    /**
+     * Success
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: {
+            id: string;
+            userId: string;
+            category: string;
+            /**
+             * JSON value
+             */
+            answers: {
+                [key: string]: unknown;
+            };
+            /**
+             * JSON value
+             */
+            notes: {
+                [key: string]: unknown;
+            };
+            createdAt: string;
+            updatedAt: string;
+        };
+    };
+};
+
+export type GetConversationsEmailByEmailResponse = GetConversationsEmailByEmailResponses[keyof GetConversationsEmailByEmailResponses];
+
+export type PostConversationsFindData = {
+    body?: {
+        filter: {
+            [key: string]: unknown;
+        };
+        paginate?: {
+            page?: number;
+            perPage?: number;
+        };
+        orderBy?: Array<{
+            sort?: string;
+            order: 'asc' | 'desc';
+        }>;
+    };
+    path?: never;
+    query?: never;
+    url: '/conversations/find';
+};
+
+export type PostConversationsFindResponses = {
+    /**
+     * Success
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: Array<{
+            filter: {
+                [key: string]: unknown;
+            };
+            paginate?: {
+                page?: number;
+                perPage?: number;
+            };
+            orderBy?: Array<{
+                sort?: string;
+                order: 'asc' | 'desc';
+            }>;
+        }>;
+    };
+};
+
+export type PostConversationsFindResponse = PostConversationsFindResponses[keyof PostConversationsFindResponses];
+
+export type DeleteConversationsBulkData = {
+    body?: {
+        ids: Array<string>;
+    };
+    path?: never;
+    query?: never;
+    url: '/conversations/bulk';
+};
+
+export type DeleteConversationsBulkResponses = {
+    /**
+     * Conversationss Deleted Successfully
+     */
+    200: {
+        success: boolean;
+        statusCode: number;
+        message: string;
+        data?: unknown;
+    };
+};
+
+export type DeleteConversationsBulkResponse = DeleteConversationsBulkResponses[keyof DeleteConversationsBulkResponses];
 
 export type ClientOptions = {
     baseUrl: 'http://localhost:5000/api' | 'https://localhost:5000/api' | (string & {});

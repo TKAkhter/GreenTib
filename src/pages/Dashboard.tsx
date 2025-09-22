@@ -1,6 +1,6 @@
 import React from "react";
-import { FileList } from "../components/FileUpload/FileList";
-import { FileUpload } from "../components/FileUpload/FileUpload";
+import { FileList } from "@/components/FileUpload/FileList";
+import { FileUpload } from "@/components/FileUpload/FileUpload";
 
 const Dashboard: React.FC = () => {
   return (

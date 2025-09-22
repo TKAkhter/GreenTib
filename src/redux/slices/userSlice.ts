@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { getUserFromCookie, removeUserCookie, setUserCookie } from "../../common/cookie";
-import logger from "../../common/pino";
+import { getUserFromCookie, removeUserCookie, setUserCookie } from "@/common/cookie";
+import logger from "@/common/pino";
 import { Users } from "@/generated";
 
 const initialState: Users = getUserFromCookie() || {
@@ -17,7 +17,7 @@ const userSlice = createSlice({
   initialState,
   reducers: {
     save: (state, action: PayloadAction<Users>) => {
-      logger.info("Dispatching save action with payload:", action.payload);
+      logger.info(`Dispatching save action with payload: ${JSON.stringify(action.payload)}`);
       state.email = action.payload.email;
       state.id = action.payload.id;
       state.name = action.payload.name;
@@ -26,7 +26,7 @@ const userSlice = createSlice({
       setUserCookie(action.payload);
     },
     remove: (state) => {
-      logger.info("Dispatching remove action with state:", state);
+      logger.info(`Dispatching remove action with state: ${JSON.stringify(state)}`);
       state.email = "";
       state.id = "";
       state.name = "";

@@ -5,7 +5,6 @@ import { AuthMiddleware } from '@/middlewares/AuthMiddleware';
 import { DefaultLayout } from '@/layout/DefaultLayout';
 import { useSelector } from 'react-redux';
 import { RootState } from '@/redux/store';
-import AiBot from '@/pages/AiBot';
 
 const Dashboard = lazy(() => import('@/pages/Dashboard'));
 const Login = lazy(() => import('@/pages/Login'));
@@ -13,6 +12,8 @@ const Register = lazy(() => import('@/pages/Register'));
 const Settings = lazy(() => import('@/pages/Settings'));
 const FileView = lazy(() => import('@/components/FileUpload/FileView'));
 const NotFound = lazy(() => import('@/pages/NotFound'));
+const QuestionForm = lazy(() => import('@/pages/QuestionForm'));
+const Chat = lazy(() => import('@/pages/Chat'));
 
 const AppRoutes: React.FC = () => {
   const token = useSelector((state: RootState) => state.auth.token);
@@ -49,7 +50,8 @@ const AppRoutes: React.FC = () => {
         </Route>
 
         {/* public routes */}
-        <Route path="/" element={<AiBot />} />
+        <Route path="/" element={<QuestionForm />} />
+        <Route path="/report" element={<Chat />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="*" element={<NotFound isAuthenticated={!!token} />} />

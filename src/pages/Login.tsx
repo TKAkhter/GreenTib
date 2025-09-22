@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { RootState } from "../redux/store";
+import { RootState } from "@/redux/store";
 import { useDispatch, useSelector } from "react-redux";
 import { addDelay, isTokenValid } from "@/lib/utils";
 import { Label } from "@/components/ui/label";

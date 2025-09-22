@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
   AlertDialogTrigger,
-} from "../ui/alert-dialog";
+} from "@/components/ui/alert-dialog";
 import { deleteFilesById, getFilesById, putFilesById } from "@/generated";
 import logger from "@/common/pino";
 

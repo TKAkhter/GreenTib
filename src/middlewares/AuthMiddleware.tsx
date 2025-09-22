@@ -1,6 +1,6 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "../redux/store";
+import { RootState } from "@/redux/store";
 import { Navigate, Outlet } from "react-router-dom";
 
 export const AuthMiddleware: React.FC = () => {

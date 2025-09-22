@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { resetFileUploaded } from "../../redux/slices/fileSlice";
-import { RootState } from "../../redux/store";
-import { ImageViewer } from "../ImageViewer";
+import { resetFileUploaded } from "@/redux/slices/fileSlice";
+import { RootState } from "@/redux/store";
+import { ImageViewer } from "@/components/ImageViewer";
 import { Files, getFilesUserByUserId } from "@/generated";
 import { toast } from "sonner";
 import logger from "@/common/pino";

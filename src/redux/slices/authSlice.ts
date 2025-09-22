@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import logger from "../../common/pino";
-import { getTokenFromCookie, removeTokenCookie, setTokenCookie } from "../../common/cookie";
+import logger from "@/common/pino";
+import { getTokenFromCookie, removeTokenCookie, setTokenCookie } from "@/common/cookie";
 
 interface AuthState {
   token: string | null;
@@ -17,13 +17,13 @@ const authSlice = createSlice({
   initialState,
   reducers: {
     login: (state, action: PayloadAction<string>) => {
-      logger.info("Dispatching login action with payload:", action.payload);
+      logger.info(`Dispatching login action with payload: ${action.payload}`);
       state.token = action.payload;
       state.isAuthenticated = true;
       setTokenCookie(action.payload);
     },
     logout: (state) => {
-      logger.info("Dispatching login action with state:", state);
+      logger.info(`Dispatching logout action with state: ${JSON.stringify(state)}`);
       state.token = null;
       state.isAuthenticated = false;
       removeTokenCookie();
