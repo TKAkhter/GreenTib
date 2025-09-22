@@ -19,7 +19,7 @@ export const FileList: React.FC = () => {
     const fetchFiles = async () => {
 
       setLoading(true);
-      const loadingToast = toast.loading("Uploading files...");
+      // const loadingToast = toast.loading("Uploading files...");
 
       try {
         const { data: filesResponse, error } = await getFilesUserByUserId({
@@ -35,7 +35,7 @@ export const FileList: React.FC = () => {
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (error: any) {
         logger.error(error.message);
-        toast.error(`Fetch files failed: ${error.message}`, { id: loadingToast });
+        toast.error(`Fetch files failed: ${error.message}`);
         setError(error.message || "Files not found!");
       } finally {
         setLoading(false);

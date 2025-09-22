@@ -1,112 +1,147 @@
 "use client";
 
-import { useSelector, useDispatch } from "react-redux";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { motion } from "framer-motion";
-import { useState, useEffect } from "react";
-import { RootState } from "@/redux/store";
-import { addNote, resetReport } from "@/redux/slices/reportSlice";
+import { useEffect, useState } from "react";
+import { Conversations, getConversationsById, postConversations, putConversationsById } from "@/generated";
+import { toast } from "sonner";
 
-export const ChatBot = ({
-    key,
-    conversationId,
-    onComplete,
-}: {
-    key: string,
-    conversationId: string | null,
-    onComplete: (payload: any) => void,
-}) => {
-    const dispatch = useDispatch();
-    const { category, answers, notes } = useSelector(
-        (state: RootState) => state.report
-    );
+// Typing effect: renders one bubble at a time
+const TypingBubble = ({ content, onDone }: { content: string; onDone?: () => void }) => {
+    const [visible, setVisible] = useState(false);
 
-    const [extraInput, setExtraInput] = useState("");
-    const [typedReport, setTypedReport] = useState(""); // typing effect
-    const [showFollowUp, setShowFollowUp] = useState(false);
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setVisible(true);
+            if (onDone) onDone();
+        }, 600); // short typing delay per bubble
+        return () => clearTimeout(timer);
+    }, []);
 
-    if (!category) {
+    if (!visible) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <p className="text-gray-500">No report available. Please start again.</p>
-            </div>
+            <motion.div
+                className="max-w-sm p-3 bg-gray-200 rounded-lg self-start"
+                initial={{ opacity: 0.5 }}
+                animate={{ opacity: 1 }}
+            >
+                Typing…
+            </motion.div>
         );
     }
 
-    // Generate the plain text version of report
-    const plainReport = [
-        `Here’s your initial report:`,
-        `Category: ${category}`,
-        ...Object.entries(answers).map(([q, a]) => `${q}: ${a}`),
-        ...(notes.length > 0
-            ? [`Extra Notes:`, ...notes.map((note) => `- ${note}`)]
-            : []),
-    ].join("\n");
+    return (
+        <motion.div
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="max-w-xl p-4 bg-gray-200 rounded-lg self-start whitespace-pre-line"
+        >
+            {content}
+        </motion.div>
+    );
+};
 
-    // Typing effect for report
+export const ChatBot = ({
+    conversationId,
+    onComplete,
+}: {
+    conversationId: string | null;
+    onComplete: () => void;
+}) => {
+    const [conversation, setConversation] = useState<Conversations | null>(null);
+    const [messages, setMessages] = useState<{ role: string; content: string }[]>([]);
+    const [extraInput, setExtraInput] = useState("");
+    const [typingQueue, setTypingQueue] = useState<string[]>([]);
+    const [showFollowUp, setShowFollowUp] = useState(false);
+
+    // fetch conversation if exists
     useEffect(() => {
-        let index = 0;
-        const interval = setInterval(() => {
-            if (index < plainReport.length) {
-                setTypedReport((prev) => prev + plainReport[index]);
-                index++;
-            } else {
-                clearInterval(interval);
-                setTimeout(() => setShowFollowUp(true), 800); // show next bubble after short delay
-            }
-        }, 30);
-        return () => clearInterval(interval);
-    }, []);
+        if (conversationId) {
+            (async () => {
+                try {
+                    const { data, error } = await getConversationsById({ path: { id: conversationId } });
+                    if (!data?.success) throw error;
+                    if (data.data) {
+                        setConversation(data.data);
+                        setMessages(data.data?.messages || []);
+                    }
+                } catch (err: any) {
+                    toast.error("Failed to load conversation");
+                }
+            })();
+        } else {
+            // fresh start
+            const intro = { role: "assistant", content: "👋 Hi! Let’s get started with your report." };
+            setMessages([intro]);
+            setTypingQueue([intro.content]);
+        }
+    }, [conversationId]);
 
-    const handleAdd = () => {
+    // process typing queue one bubble at a time
+    useEffect(() => {
+        if (typingQueue.length === 0) return;
+        const [next, ...rest] = typingQueue;
+        const timer = setTimeout(() => {
+            setTypingQueue(rest);
+            setShowFollowUp(rest.length === 0); // show follow-up after last bubble
+        }, 1200); // delay per bubble
+        return () => clearTimeout(timer);
+    }, [typingQueue]);
+
+    const handleSend = async () => {
         if (!extraInput.trim()) return;
-        dispatch(addNote(extraInput));
-        setExtraInput("");
-    };
+        const newMsg = { role: "user", content: extraInput };
 
-    const handleDone = () => {
-        console.log("Final Report:", { category, answers, notes });
-        dispatch(resetReport());
+        // optimistic update
+        setMessages((prev) => [...prev, newMsg]);
+        setExtraInput("");
+
+        // if (conversationId) {
+        //     await putConversationsById({
+        //         path: { id: conversationId },
+        //         body: newMsg,
+        //     });
+        // }
+
+        // simulate assistant reply
+        const reply = { role: "assistant", content: "✅ Noted! I’ve added that to your report." };
+        setMessages((prev) => [...prev, reply]);
+        setTypingQueue([reply.content]);
     };
 
     return (
         <div className="flex flex-col h-screen bg-gray-50">
+            {/* Messages */}
             <div className="flex-1 overflow-y-auto p-6 space-y-4">
-                {/* AI bubble with typing effect */}
-                <motion.div
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="max-w-xl p-4 bg-gray-200 rounded-lg self-start whitespace-pre-line"
-                >
-                    {typedReport}
-                </motion.div>
-
-                {/* Follow-up AI bubble */}
+                {messages.map((m, i) =>
+                    m.role === "assistant" ? (
+                        <TypingBubble key={i} content={m.content} />
+                    ) : (
+                        <div
+                            key={i}
+                            className="p-3 bg-green-100 rounded-lg max-w-xl ml-auto"
+                        >
+                            {m.content}
+                        </div>
+                    )
+                )}
+                {/* Show pending typing bubbles */}
+                {typingQueue.length > 0 && <TypingBubble content={typingQueue[0]} />}
                 {showFollowUp && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className="max-w-xl p-4 bg-gray-200 rounded-lg self-start"
-                    >
-                        Does this look good, or would you like to add something before we
-                        start?
-                    </motion.div>
+                    <TypingBubble content="Would you like to add anything else?" />
                 )}
             </div>
 
-            {/* Input bar like ChatGPT */}
+            {/* Input bar */}
             <div className="p-4 border-t flex items-center gap-2">
                 <Input
-                    placeholder="Add extra notes..."
+                    placeholder="Type your answer..."
                     value={extraInput}
                     onChange={(e) => setExtraInput(e.target.value)}
                 />
-                <Button onClick={handleAdd}>Send</Button>
-                <Button variant="secondary" onClick={handleDone}>
-                    I’m Done
-                </Button>
+                <Button onClick={handleSend}>Send</Button>
             </div>
         </div>
     );
-}
+};

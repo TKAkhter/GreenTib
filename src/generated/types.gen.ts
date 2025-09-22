@@ -52,6 +52,10 @@ export type Conversations = {
     };
     createdAt: string;
     updatedAt: string;
+    messages?: Array<{
+        role: string;
+        content: string;
+    }>;
 };
 
 export type GetHealthData = {
@@ -910,6 +914,10 @@ export type GetConversationsResponses = {
             };
             createdAt: string;
             updatedAt: string;
+            messages?: Array<{
+                role: string;
+                content: string;
+            }>;
         }>;
     };
 };
@@ -932,6 +940,10 @@ export type PostConversationsData = {
         notes?: {
             [key: string]: unknown;
         };
+        messages?: Array<{
+            role: string;
+            content: string;
+        }>;
     };
     path?: never;
     query?: never;
@@ -961,6 +973,10 @@ export type PostConversationsResponses = {
             notes?: {
                 [key: string]: unknown;
             };
+            messages?: Array<{
+                role: string;
+                content: string;
+            }>;
         };
     };
 };
@@ -1072,6 +1088,10 @@ export type GetConversationsByIdResponses = {
             };
             createdAt: string;
             updatedAt: string;
+            messages?: Array<{
+                role: string;
+                content: string;
+            }>;
         };
     };
 };
@@ -1095,6 +1115,10 @@ export type PutConversationsByIdData = {
             [key: string]: unknown;
         };
         updatedAt?: string;
+        messages?: Array<{
+            role: string;
+            content: string;
+        }>;
     };
     path: {
         id: string;
@@ -1129,22 +1153,26 @@ export type PutConversationsByIdResponses = {
             };
             createdAt: string;
             updatedAt: string;
+            messages?: Array<{
+                role: string;
+                content: string;
+            }>;
         };
     };
 };
 
 export type PutConversationsByIdResponse = PutConversationsByIdResponses[keyof PutConversationsByIdResponses];
 
-export type GetConversationsEmailByEmailData = {
+export type GetConversationsUserByUserIdData = {
     body?: never;
     path: {
-        email: string;
+        userId: string;
     };
     query?: never;
-    url: '/conversations/email/{email}';
+    url: '/conversations/user/{userId}';
 };
 
-export type GetConversationsEmailByEmailResponses = {
+export type GetConversationsUserByUserIdResponses = {
     /**
      * Success
      */
@@ -1152,7 +1180,7 @@ export type GetConversationsEmailByEmailResponses = {
         success: boolean;
         statusCode: number;
         message: string;
-        data?: {
+        data?: Array<{
             id: string;
             userId: string;
             category: string;
@@ -1170,11 +1198,15 @@ export type GetConversationsEmailByEmailResponses = {
             };
             createdAt: string;
             updatedAt: string;
-        };
+            messages?: Array<{
+                role: string;
+                content: string;
+            }>;
+        }>;
     };
 };
 
-export type GetConversationsEmailByEmailResponse = GetConversationsEmailByEmailResponses[keyof GetConversationsEmailByEmailResponses];
+export type GetConversationsUserByUserIdResponse = GetConversationsUserByUserIdResponses[keyof GetConversationsUserByUserIdResponses];
 
 export type PostConversationsFindData = {
     body?: {

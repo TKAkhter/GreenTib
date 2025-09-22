@@ -3,41 +3,51 @@
 import React, { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { ChatBot } from "@/components/ChatBot";
+import { useSelector } from "react-redux";
+import { RootState } from "@/redux/store";
+import { Conversations, getConversationsUserByUserId } from "@/generated";
+import logger from "@/common/pino";
+import { toast } from "sonner";
 
-type Conversation = {
-  id: string;
-  category: string;
-  created_at: string;
-};
-
-export default function Chat() {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+export default function ChatLayout() {
+  const [conversations, setConversations] = useState<Conversations[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
+  const userId = useSelector((state: RootState) => state.user.id);
 
-  // fetch conversations
   const fetchConversations = async () => {
-    const res = await fetch("/api/conversations");
-    const data = await res.json();
-    setConversations(data);
+
+    setLoading(true);
+    // const loadingToast = toast.loading("Loading Conversations...");
+
+    try {
+      const { data: conversationsResponse, error } = await getConversationsUserByUserId({
+        path: {
+          userId
+        }
+      });
+      if (!conversationsResponse?.success) {
+        throw error;
+      }
+
+      setConversations(conversationsResponse?.data!);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+      logger.error(error.message);
+      toast.error(`Fetch conversations failed: ${error.message}`);
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => {
     fetchConversations();
   }, []);
 
-  const handleConversationComplete = async (payload: any) => {
-    const res = await fetch("/api/conversations", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-    await fetchConversations();
-  };
-
   return (
     <div className="flex h-screen">
       {/* Sidebar */}
-      <div className="w-64 border-r bg-gray-50 p-3 flex flex-col">
+      <aside className="w-64 border-r bg-gray-50 p-3 flex flex-col">
         <h2 className="text-lg font-semibold mb-3">Conversations</h2>
         <div className="flex-1 overflow-y-auto space-y-2">
           {conversations.map((c) => (
@@ -47,26 +57,23 @@ export default function Chat() {
               className="w-full justify-start"
               onClick={() => setActiveId(c.id)}
             >
-              {c.category} – {new Date(c.created_at).toLocaleDateString()}
+              {c.category} – {new Date(c.createdAt).toLocaleDateString()}
             </Button>
           ))}
         </div>
-        <Button
-          className="mt-3"
-          onClick={() => setActiveId(null)} // start new chat
-        >
+        {/* <Button className="mt-3" onClick={() => setActiveId(null)}>
           + New Chat
-        </Button>
-      </div>
+        </Button> */}
+      </aside>
 
       {/* Main Chat */}
-      <div className="flex-1">
+      <main className="flex-1">
         <ChatBot
           key={activeId || "new"}
           conversationId={activeId}
-          onComplete={handleConversationComplete}
+          onComplete={fetchConversations}
         />
-      </div>
+      </main>
     </div>
   );
 }
