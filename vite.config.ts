@@ -18,27 +18,14 @@ export default defineConfig({
     rollupOptions: {
       output: {
         manualChunks: (id) => {
-          if (id.includes('node_modules')) {
-            if (id.includes('react') || id.includes('react-dom')) {
-              return 'vendor-react';
-            }
-            if (id.includes('@radix-ui')) {
-              return 'vendor-radix';
-            }
-            if (id.includes('lucide-react')) {
-              return 'vendor-lucide';
-            }
-            if (id.includes('@hey-api')) {
-              return 'vendor-api';
-            }
-            return 'vendor'; // all other node_modules
+          if (id.includes("node_modules")) {
+            if (id.includes("@radix-ui")) return "vendor-radix";
+            if (id.includes("lucide-react")) return "vendor-lucide";
+            if (id.includes("@hey-api")) return "vendor-api";
+            return "vendor"; // keep React & ReactDOM here too
           }
-          if (id.includes('src/pages')) {
-            return 'pages';
-          }
-          if (id.includes('src/components')) {
-            return 'components';
-          }
+          if (id.includes("src/pages")) return "pages";
+          if (id.includes("src/components")) return "components";
         },
       },
     },

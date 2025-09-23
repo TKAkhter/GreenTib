@@ -17,7 +17,7 @@ export type CreateClientConfig<T extends DefaultClientOptions = ClientOptions> =
 const token = getTokenFromCookie();
 
 export const client = createClient(createConfig<ClientOptions>({
-    baseUrl: 'http://localhost:5000/api',
+    baseUrl: `${import.meta.env.VITE_BACKEND_API_URL}/api`,
     headers: {
         ...(token ? { Authorization: `Bearer ${token}` } : {}),
     },
